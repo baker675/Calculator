@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problem Solver</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/842/842590.png">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+        }
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        label {
+            font-size: 16px;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px 0;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        p {
+            font-size: 18px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .history {
+            margin-top: 20px;
+            font-size: 14px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .delete-btn {
+            cursor: pointer;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h2>Problem Solver</h2>
+        <label for="operand1">First Number:</label>
+        <input type="number" id="operand1"><br>
+        <label for="operator">Function:</label>
+        <select id="operator">
+            <option value="+">+</option>
+            <option value="-">-</option>
+            <option value="*">x</option>
+            <option value="/">/</option>
+            <option value="^">^ (Exponentiation)</option>
+            <option value="sqrt">√ (Square Root)</option>
+            <option value="abs">|x| (Absolute Value)</option>
+            <option value="%">mod (%)</option>
+        </select><br>
+        <label for="operand2">Second Number:</label>
+        <input type="number" id="operand2"><br>
+        <button onclick="solve()">Solve</button>
+        <p id="result"></p>
+        <label for="historySelect">Solving History:</label>
+        <div class="history" id="historySelect" size="5"></div>
+    </div>
+
+    <script>
+        // Load history from local storage when the page loads
+        window.onload = function() {
+            loadHistory();
+        };
+
+        function loadHistory() {
+            var history = JSON.parse(localStorage.getItem('history'));
+            var historyDiv = document.getElementById('historySelect');
+            historyDiv.innerHTML = '';
+
+            if (history) {
+                history.forEach(function(item, index) {
+                    var historyItem = document.createElement('div');
+                    historyItem.className = 'history-item';
+                    historyItem.innerHTML = '<span>' + (index + 1) + ': ' + item + '</span><span class="delete-btn" onclick="deleteHistory(' + index + ')">❌</span>';
+                    historyDiv.appendChild(historyItem);
+                });
+            }
+        }
+
+        function solve() {
+            var operand1 = parseFloat(document.getElementById('operand1').value);
+            var operand2 = parseFloat(document.getElementById('operand2').value);
+            var operator = document.getElementById('operator').value;
+            var result;
+
+            switch (operator) {
+                case '+':
+                    result = operand1 + operand2;
+                    break;
+                case '-':
+                    result = operand1 - operand2;
+                    break;
+                case '*':
+                    result = operand1 * operand2;
+                    break;
+                case '/':
+                    result = operand1 / operand2;
+                    break;
+                case '^':
+                    result = Math.pow(operand1, operand2);
+                    break;
+                case 'sqrt':
+                    result = Math.sqrt(operand1);
+                    break;
+                case 'abs':
+                    result = Math.abs(operand1);
+                    break;
+                case '%':
+                    result = operand1 % operand2;
+                    break;
+                default:
+                    result = "Invalid operator";
+            }
+
+            document.getElementById('result').innerText = "Result: " + result;
+
+            // Add the solved expression to history
+            var expression = operand1 + " " + operator + " " + operand2 + " = " + result;
+            addToHistory(expression);
+        }
+
+        function addToHistory(expression) {
+            var history = JSON.parse(localStorage.getItem('history')) || [];
+            history.push(expression);
+            localStorage.setItem('history', JSON.stringify(history));
+            loadHistory();
+        }
+
+        function deleteHistory(index) {
+            var history = JSON.parse(localStorage.getItem('history'));
+            history.splice(index, 1);
+            localStorage.setItem('history', JSON.stringify(history));
+            loadHistory();
+        }
+    </script>
+</body>
+</html>
